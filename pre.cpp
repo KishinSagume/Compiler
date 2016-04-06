@@ -1,185 +1,101 @@
 #include "pre.h"
-#include<iostream>
-extern std::fstream file;
+#include "err.h"
 
-bool deal_line() {
-	while (file.peek()!=-1) {
+std::vector<std::pair<std::pair<std::string, std::string&>,int> > all_line;
+std::vector<std::string> file_name;
 
-		std::cout << (char)file.peek(); system("pause");
-		switch (file.peek()) {
-
-		case 'd':
-			file.get();
-			if (file.get() == 'e')
-				if (file.get() == 'f')
-					if (file.get() == 'i')
-						if (file.get() == 'n')
-							if (file.get() == 'e')
-								if (file.get() == ' ') {
-									std::string old_str = get_pre_old();
-									if (!old_str.empty() && file.get() == ' ') {
-										std::string new_str = get_pre_new();
-										if (!new_str.empty())
-											//加入宏替换
-											;
-									}
-								}
-			pre_err(pre_line, " line:  not a #include ");
-			return false;
-
-			
-			/*
-		case '\\':
-			file.get();
-			if (file.peek() == '\n') {
-				char_stream.push_back(file.get());
-				pre_line++;
-				return false;
-			}
-			else {
-				pre_err(pre_line, " line:  should \\r\\n after \\ ");
-				while (file.peek() != -1) {//错误恢复,放弃当前行
-					if (file.peek() == '\n') {
-						char_stream.push_back(file.get());
-						pre_line++;
-						return false;
-					}
-					file.get();
-				}
-				pre_err(pre_line, " line:  meet eof in wrong place ");
-				return false;
-			}*/
-
-			//////
-
-
-		default:file.get(); break;
-
-
-
-
-		}
-
-		
+void read_file(std::string & filename, int fileline) {
+	std::fstream file;
+	file.open(filename);
+	if (!file) {
+		pre_err(fileline, filename + " can't open.");
+		return;
 	}
+	int line = 1;
+	std::string str;
+	while (getline(file, str)) {
+		std::pair<std::string, std::string&> r(str, filename);
+		std::pair<std::pair<std::string, std::string&>, int> t(r, line++);
+		all_line.push_back(t);
+	}
+	file.close();
 }
 
-bool deal_pre() {
-	while (file.peek() != -1) {
-		switch (file.peek()) {
-
+void deal_first(std::vector<std::pair<std::pair<std::string, std::string&>, int> >::iterator & now) {//处理一行
+	while (now != all_line.end()) {
+		if (now->first.first.begin() == now->first.first.end()) {
+			now++;
+			continue;
+		}
+		switch (*(now->first.first.begin())) {
 		case '#':
-			if(!deal_line()) return false;
+			if (now->first.first.find("include", 1) != std::string::npos)
+				if (now->first.first.size() > 8)
+					include(now->first.first.substr(8));
+				else {
+					pre_err(now->second, " lack file after #include.");
+					now->first.first.clear();
+					break;
+				}
 			break;
 
-		case '/':
-			deal_xiegang();
-			break;
 
-		case '\n':
-			char_stream.push_back(file.get());
-			pre_line++;
-			break;
+		case ' ':
+		case '	':
+			now->first.first.erase(0, first_real(now->first.first));
+			continue;
+
 
 		default:
-			char_stream.push_back(file.get());
-			break;
-		}
-	}
-	return true;
-}
-
-bool deal_xiegang() {
-	file.get();
-
-	switch (file.peek()) {
-
-	case '/':
-		file.get();
-		zhushiyihang();
-		break;
-
-	case '*':
-		file.get();
-		zhushiyikuai();
-		break;
-
-	default:
-		char_stream.push_back('/');
-		char_stream.push_back(file.get());
-		break;
-	}
-	return false;
-}
-
-bool zhushiyihang() {
-	while (file.peek()!=-1) {
-		switch (file.peek()) {
-		case '\n':
-			pre_line++;
-			char_stream.push_back(file.get());
-			return true;
+			std::string::size_type left = now->first.first.find("/*");
+			std::string::size_type linedel = now->first.first.find("//");
+			if (linedel != std::string::npos && linedel<left) {
+				now->first.first.erase(linedel);
+				break;
+			}
+			if (left != std::string::npos && left<linedel) {
+				std::string::size_type right = now->first.first.find("*/", left + 2);
+				if (right != std::string::npos)
+					now->first.first.erase(left, right - left + 2);
+				else {
+					now->first.first.erase(left);
+					while (++now != all_line.end()) {
+						std::string::size_type right = now->first.first.find("*/");
+						if (right != std::string::npos) {
+							now->first.first.erase(0, right + 2);
+							break;
+						}
+						else now->first.first.erase(0);
+					}
+					continue;
+				}
+			}
 			
-		default:
-			file.get();
-			break;
-		}
+			
+		}//switch
+		now++;
 	}
-	pre_err(pre_line, " line:  lack \\n after //");
-	return false;
 }
 
-bool zhushiyikuai() {
-	while (file.peek() != -1) {
-		switch (file.peek()) {
-		case '\n':
-			pre_line++;
-			char_stream.push_back(file.get());
-			break;
+void print_a_l() {
+	for (auto s : all_line)
+		std::cout << s.first.second<< " " << s.second << ":  " << s.first.first << std::endl;
+}
 
-		case '*':
-			file.get();
-			if (file.get() == '/')
-				return true;
-
-		default:
-			file.get();
-			break;
+int first_real(std::string & str) {
+	std::string::iterator it = str.begin();
+	int i = 0;
+	while (it != str.end()) {
+		if (*it == ' ' || *it == '	') {
+			it++;
+			i++;
+			continue;
 		}
+		else return i;
 	}
-	pre_err(pre_line, " line:  lack */ after //");
-	return false;
+	return -1;
 }
 
-std::string get_pre_old() {
-	return std::string();
-}
+void include(std::string str) {
 
-std::string get_pre_new() {
-	return std::string();
 }
-
-bool deal_define() {
-	return false;
-}
-
-bool deal_undef(){
-	return false;
-}
-
-bool deal_include(std::string file){
-	return false;
-}
-
-bool deal_ifdef(){
-	return false;
-}
-
-bool deal_ifndef(){
-	return false;
-}
-
-bool deal_endif(){
-	return false;
-}
-
