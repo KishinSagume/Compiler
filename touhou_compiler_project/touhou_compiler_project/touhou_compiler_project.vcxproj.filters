@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="词法分析器">
+      <UniqueIdentifier>{f4d174d6-e22d-4022-99f1-82d76c4d2003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="预处理器">
+      <UniqueIdentifier>{7d103d19-5837-4b2b-b2e6-1f32a7de9796}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="语法分析器">
+      <UniqueIdentifier>{10db27dd-8cc2-4fc9-848f-c551d99bac2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="compiler">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="错误">
+      <UniqueIdentifier>{39aa54b6-6e1b-4e3b-950f-b44da9624c24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="语意分析器">
+      <UniqueIdentifier>{083ef0e7-be3d-487e-90a2-9aa5dee33d3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools">
+      <UniqueIdentifier>{77bc00c0-8a1d-4c71-b421-26a1bcd6adae}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="pre.cpp">
+      <Filter>预处理器</Filter>
+    </ClCompile>
+    <ClCompile Include="err.cpp">
+      <Filter>错误</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>compiler</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pre.h">
+      <Filter>预处理器</Filter>
+    </ClInclude>
+    <ClInclude Include="err.h">
+      <Filter>错误</Filter>
+    </ClInclude>
+    <ClInclude Include="file_io.h">
+      <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="token.h">
+      <Filter>词法分析器</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
