@@ -58,12 +58,11 @@ void deal_first(std::vector<std::pair<std::pair<std::string, std::string>, int> 
 					include(now->first.first.substr(8), now);                      //include一个文件
 					now->first.first.clear();
 				}
-				else {
+				else {                                                            //第一次三秒只处理include，其他的可能的错误放在最后一次添加到PRE_ERR
 					pre_err(now->second, " lack file after #include.");
 					now->first.first.clear();
 					break;
 				}
-
 			break;
 
 
@@ -105,15 +104,15 @@ void deal_first(std::vector<std::pair<std::pair<std::string, std::string>, int> 
 }
 
 void deal_second(std::vector<std::pair<std::pair<std::string, std::string>, int> >::iterator & now) {//处理define和ifdef等
-	//while (now != all_line.end()) {
-	//	if (now->first.first.begin() == now->first.first.end()) {
-	//		now++;
-	//		continue;
-	//	}
-	//	switch (*(now->first.first.begin())) {
-	//	case '#':
-	//	}
-	//}
+	/*while (now != all_line.end()) {
+		if (now->first.first.begin() == now->first.first.end()) {
+			now++;
+			continue;
+		}
+		switch (*(now->first.first.begin())) {
+		case '#':
+		}
+	}*/
 }
 
 void print_a_l() {
